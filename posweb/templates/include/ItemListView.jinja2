@@ -1,0 +1,35 @@
+<table class="table table-striped">
+<thead>
+    <tr>
+    <th class="col-md-2">Internal ID</th>
+    <th class="col-md-3">Category</th>
+    <th class="col-md-5">Name</th>
+    <th class="col-md-1">Price</th>
+    <th class="col-md-1">In Stock</th>
+    </tr>
+</thead>
+<tbody>
+{% for item in items %}
+    <tr>
+    <td>{{ item.id }}</td>
+    <td>{{ item.category }} </td>
+    <td>{{ item.plainName }}</td>
+    <td>${{ '{0:0.2f}'.format(item.value / 100)}}</td>
+    {% if item.stockCount == -1%}
+    {% else %}    
+    <td>{{ item.stockCount }} </td>
+    {% endif %}
+    </tr>
+{% endfor %}
+{% if can_create == true %}
+<tr class="bg-primary">
+    <td><input class="form-control"/>
+    <td><input class="form-control"/>
+    <td><input class="form-control"/>
+    <td><input class="form-control"/>
+    <td><input class="form-control"/>
+</tr>
+{% endif %}
+
+</tbody>
+</table>

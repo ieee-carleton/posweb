@@ -1,0 +1,62 @@
+{%extends "base.jinja2" %}
+
+{%block title %}New Order{% endblock %}
+{%block content %}
+<div class="col-md-11 center-block">
+<div class="row">
+<h2>Transaction Record</h2>
+<div class="row">
+<div class="col-xs-5">
+  <div class="panel panel-default">
+                  <div class="panel-body">
+                    <table class="uxelements">
+                      <tr><td><strong>Order ID:</strong></td><td>IEEECU-{{ "{0:06d}".format(order.id) }}</td></tr>
+                      <tr><td><strong>Fulfilled by:</strong></td><td>{{order.FulfilledBy.username}}</td></tr>
+                    </table>
+                  </div>
+                </div>
+</div>
+
+<div class="col-xs-6 col-xs-offset-1">
+  <div class="panel panel-default">
+                  <div class="panel-body">
+                    <table class="uxelements">
+                      <tr><td class="top"><strong>Invoiced to:</strong></td><td>IEEE Carleton University <br> Rm 5170 Mackenzie Building<br>1125 Colonel By Dr<br>Ottawa, ON K1S 5B6</td></tr>
+                    </table>
+                  </div>
+                </div>  
+</div>
+
+</div>
+
+</div>
+<div class="row">
+          
+        <table id="orderTable" class="table table-striped expanding-table">
+            <thead>
+                <tr>
+                    <th class="col-sm-2">Item ID</th>
+                    <th class="col-sm-5">Name</th>
+                    <th class="col-sm-1">Count</th>
+                </tr>
+            </thead>
+            <tbody>
+            {%for orderLineItem in order.LineItems %}
+            <tr>
+                <td>{{ orderLineItem.SaleItem.id }}</td>
+                <td>{{ orderLineItem.SaleItem.plainName }}</td>
+                <td>{{ orderLineItem.procurementCount}}</td>
+            </tr>
+            {% endfor %}
+            <tr><td colspan="5">&nbsp;</td></tr>
+            <tr><td colspan="5">&nbsp;</td></tr>
+            <tr>
+                <td colspan="1">&nbsp;</td>
+                <td><strong>Invoice Total:</strong></td>
+                <td><strong>{{ '${0:0.2f}'.format(order.ReceiptTotal / 100)}}</strong> </td>
+            </tr>
+            </tbody>
+            </table>
+    </div>
+ </div>
+{% endblock %}

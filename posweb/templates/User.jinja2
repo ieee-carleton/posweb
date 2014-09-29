@@ -1,0 +1,84 @@
+{%extends "base.jinja2" %}
+{%block title %}User Profile{% endblock %}
+{%block pagetitle %}User Profile{% endblock %}
+
+{% block content %}
+<div class="row">
+<div class="col-md-11 center-block">
+      <form class="form-post" role="form" method="post">
+        <h2 class="form-post">Account Overview</h2>
+
+<div class="panel panel-primary">
+
+
+<div class="panel-heading">
+<h5>Profile Details</h5>
+</div>
+  <div class="panel-body">
+        <label>Username</label>
+        <input type="text"   name="username" class="form-control" placeholder="IEEE Office Username" value="{{ user.username }}" {% if userIsAdmin is defined %}{% else %}disabled{% endif %} required autofocus>
+        <label>Group(s)</label>
+        <input type="text"   name="groups" class="form-control" placeholder="Groups" value="{{ user.groups }}" required autofocus {% if userIsAdmin is defined %}{% else %}disabled{% endif %}>
+        
+        <label>Full Name</label>
+        <input type="text" name="fullname" class="form-control" placeholder="Full name (i.e John Smith)" value="{{ user.fullname }}">
+        <label>Contact e-mail</label>
+        <input type="email" name="email" class="form-control" placeholder="E-mail address" value="{{ user.email }}">
+        </div>
+        </div>
+<div class="panel panel-primary">
+<div class="panel-heading">
+<h5>Password Management</h5>
+</div>
+  <div class="panel-body">
+          <div class="form-group">
+        <input id="changePassword" type="checkbox" name="changepw">Change password<br>
+        <label>New password</label>
+        <input id="pprimary" type="password" name="password" class="form-control pw-boxes" placeholder="Password" value="" disabled>
+         <label>Re-enter password</label>
+        <input id="psecondary" type="password" name="password-repeat" class="form-control pw-boxes" placeholder="Repeat password" value="" disabled>
+        </div>
+
+  </div>
+  <div class="panel-footer"><em>Note that the admins do not have access to your password. We can only reset it for you.</em></div>
+</div>
+
+
+
+        <div class="col-sm-8 col-sm-offset-2 top-padded">
+                  <div class="form-group">
+
+        <button class="btn btn-lg btn-primary btn-block form-control" type="submit" name="form.submitted">Update</button>
+        </div>
+        </div>
+      </form>
+</div>
+</div>
+{% endblock %}
+
+{%block script %}
+<script type="text/javascript">
+$(document).ready(function()
+{
+$('form-post').on('submit',function(){
+   if($('#pprimary').val()!=$('#psecondary').val()){
+       alert("Password and confirmation don't match!");
+       return false;
+   }
+   return true;
+});
+$("#changePassword").click(function()
+    {
+        if($(this).is(':checked'))
+        {
+        $(".pw-boxes").attr('disabled', false);
+        }
+        else
+        {
+        $(".pw-boxes").attr('disabled', true);
+
+        }
+    });
+});
+</script>
+{% endblock %}

@@ -1,0 +1,57 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN">
+<html lang="en">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="{{request.application_url}}/static/typeahead-fix.css">
+    <link rel="stylesheet" href="{{request.application_url}}/static/base.css">
+    <link href='http://fonts.googleapis.com/css?family=Arimo:400,700' rel='stylesheet' type='text/css'>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <title>POSWeb -{% block title %}{% endblock %}</title>
+</head>
+<body>
+    <div id="wrap">
+    <div class="container main" id="main">
+    <div class="row hidden-print">
+        <div class="col-md-12">
+        {% if logged_in is defined %}   
+
+        <div class="row">
+            <div class="col-md-3 col-md-offset-9">
+            <div class="pull-right user-management">
+                <span>Greetings, <div class="btn-group">
+                    <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
+                        <span class="glyphicon glyphicon-user"></span> <strong>{{ logged_in }}</strong> <span class="caret"></span>
+                    </button>
+                    <ul class="dropdown-menu" role="menu">
+                        <li><a href="{{request.application_url}}/app/orders/new">New sale</a></li>
+                        <li class="divider"></li>
+                        <li><a href="{{request.application_url}}/app/users/{{ logged_in }}">Account</a></li>
+                        <li><a href="{{request.application_url}}/logout">Logout</a></li>
+                    </ul>
+                </div>
+                </span>
+           </div>
+       </div>
+        </div>
+        {%endif %}
+    </div>
+</div>  
+        <h2>{%block pagetitle%} {%endblock %}</h2>
+        {% block content %}{% endblock %}
+    </div>
+    {% block extra %} {% endblock %}
+    <div id="push"></div>
+    </div>
+    <div id="footer">
+        <div class="container">
+            <p class="text-muted text-center">IEEE Carleton University</p>
+        </div>
+    </div>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+    <!-- Include all compiled plugins (below), or include individual files as needed -->
+    {% block script %} {% endblock %}
+
+</body>

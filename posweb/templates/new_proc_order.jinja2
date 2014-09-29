@@ -1,0 +1,289 @@
+{%extends "base.jinja2" %}
+
+{%block title %}New Procurement Order{% endblock %}
+{%block pagetitle %}Create New Procurement Order{% endblock %}
+
+
+{%block content %}
+<div class="row fullheight">
+	<div class="col-md-11 center-block">
+		
+		<table id="orderTable" class="table table-striped expanding-table">
+			<thead>
+				<tr>
+					<th class="col-sm-2">Item ID</th>
+					<th class="col-sm-7">Name</th>
+					<th class="col-sm-2">Count</th>
+					<th class="col-sm-1">Count</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr>
+					<td colspan="4">&nbsp;</td>
+				</tr>
+				<tr>
+					<td colspan="4">&nbsp;</td>
+				</tr>
+				<tr>
+					<td colspan="4">&nbsp;</td>
+				</tr>
+				<tr>
+					<td colspan="4">&nbsp;</td>
+				</tr>
+				<tr>
+					<td colspan="4">&nbsp;</td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+</div>
+{% endblock %}
+{% block extra%}
+<div class="transaction-control">
+	<div class="container">
+	<div class="col-md-11 center-block">
+	<div class="panel panel-primary">
+		<div class="row panel-body">
+				<div class="col-md-6">
+					<div class="input-group">
+						<span class="input-group-addon glyphicon glyphicon-plus"></span>
+						<input id="addItem" class="form-control" type="text" placeholder="Enter an item, category, or coursecode" />
+					</div>
+					<div class="input-group">
+						<span class="input-group-addon glyphicon glyphicon-user"></span>
+						<input id="fulfilledBy" class="form-control" type="text" placeholder="Procurement fulfilled by..." />
+					</div>
+				</div>
+				<div class="col-md-5 col-md-offset-1">
+					<table class="uxelements">
+						<tbody>
+							<tr>
+								<td class="col-sm-5">
+									<span class="h2">Total:</span>
+								</td>
+								<td class="col-sm-6 right">
+									<div class="input-group">
+									<span class="input-group-addon glyphicon glyphicon-usd"></span>
+									<input type="text" class="form-control" id="total" pattern="(\d{1,})([\.])(\d{2})"/>
+									</div>
+								</td>
+							</tr>
+							<tr>
+								<td class="col-sm-6">
+									<button type="button" id="cancel" class="btn btn-danger btn-lg">
+										<span class="glyphicon  glyphicon-trasn"></span>  Cancel
+									</button>
+								</td>
+								<td class="col-sm-6 nopad">	
+									<button type="button" id="commit" class="btn btn-success btn-lg pull-right">
+										<span class="glyphicon glyphicon-shopping-cart"></span> Commit
+									</button>
+								</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+</div>
+{% endblock %}
+
+{%block script %}
+{% raw %}
+<script src="http://cdnjs.cloudflare.com/ajax/libs/typeahead.js/0.10.4/dist/typeahead.bundle.min.js"></script>
+<script src="http://cdnjs.cloudflare.com/ajax/libs/handlebars.js/2.0.0-alpha.4/handlebars.min.js"></script>
+		<script type="text/javascript">
+			var orderItems = []
+			var mySource;
+			var currentAccountid= 0;
+			$(document).ready(function()
+			{
+
+				mySource = new Bloodhound({
+					datumTokenizer: customDatumTokenizer,
+					queryTokenizer: Bloodhound.tokenizers.whitespace,
+					prefetch: {
+						url: "/api/items",
+						filter: function(ilist){return ilist.items;}
+					}
+				}
+				);
+				mySource.clearPrefetchCache();
+				mySource.initialize();
+				Handlebars.registerHelper('formatCurrency', formatCurrency);
+				$('#addItem').typeahead(null, {
+					displayKey: 'plainName',
+					source: mySource.ttAdapter(),
+					templates:
+					{
+						empty: [
+						'<div class="empty-message">',
+						'unable to find any products that match the current query',
+						'</div>'
+						].join('\n'),
+						suggestion: Handlebars.compile(
+							'<p><span class="hint">(Category: {{category}}</span>: <strong>{{plainName}}</strong> – {{formatCurrency value}}</p>')
+					}
+				}).on('typeahead:selected', addToOrder).on('typeahead.autocompleted', addToOrder);
+				$('#addItem').typeahead('val', '');
+				$('#orderTable').on( 'click', '.btn-edit', function( event ) {
+					var $tr = $(this).closest('tr');
+					var val = $tr.find('.unitCount').text();
+					$tr.find('.unitCount').html('<input type="text" class="form-control edit-box" value="'+ val +'">');
+
+					});
+
+
+				$('#orderTable').on('keypress', '.edit-box', function(event){
+					if (event.which != 13)
+						return;
+					var $tr = $(this).closest('tr');
+					var new_val = $tr.find('.edit-box').val();
+					var id = parseInt($tr.find('.id').text());
+					if (new_val == 0)
+					{
+						$tr.remove();
+						orderItems = orderItems.filter(function(e)
+						{
+							return (e.OrderItem.id != id);
+						});
+
+					}
+					else
+					{ 
+						$.each(orderItems, function(idx, val) {
+							if (val.OrderItem.id == id) {
+								val.count = new_val;
+								addOrUpdateRow(val.OrderItem, val.count);
+								return false;
+							}
+						});
+					}
+				});
+
+				$('#orderTable').on( 'click', '.btn-rem', function( event ) 
+				{
+					var $tr = $(this).closest('tr');
+					var id = parseInt($tr.find('.id').text());
+
+					$tr.remove();
+					orderItems = orderItems.filter(function(e)
+					{
+					return (e.OrderItem.id != id);
+					});
+				});
+
+				$('#cancel').click(function(){location.reload(true)});
+				$('#commit').click(function()
+				{
+					$.ajax(
+					{
+						type: 'POST',
+						url: '/api/procurements/new',
+						data: JSON.stringify(prepareOrder()),
+						contentType: 'application/json; charset=utf-8'
+					}).done(function(response)
+					{
+						if (response.status == 0)
+						{
+							window.location.replace(response.redirect);
+						}
+						}
+						);
+
+				});
+
+			}
+			);
+
+function prepareOrder()
+{
+	var list = []
+	$.each(orderItems, function(i,v)
+		{
+			list.push({'id': v.OrderItem.id, 'count': v.count});
+		});
+	return {'orderTotal': $('#total').val(), 'fulfilledBy': $('#fulfilledBy').val(), 'items': list};
+}
+
+
+
+function addOrUpdateRow(item, newCount)
+{
+	var createNew = true;
+	$("#orderTable tbody").find("tr").each(function(index) {
+
+		var data =  $(this).find("td");
+		var id = data.first().text();
+		if (id == item.id)
+		{
+			data.eq(2).html(newCount);
+			createNew = false;
+			return false;
+		}
+	});
+
+	if (createNew)
+	{
+		$('#orderTable tbody').find('tr').each(function (index)
+		{
+
+			if ($(this).find("td").first().text() == '\xA0')
+			{
+
+				$(this).replaceWith('<tr><td class="id">' + item.id + 
+					'</td><td class="plainName">' + item.plainName + 
+					'</td><td class="unitCount">1</td><td class="options"><button type="button" class="btn btn-default btn-sm btn-edit"><span class="glyphicon glyphicon-pencil"></span></button><button type="button" class="btn btn-default btn-sm btn-rem"><span class="glyphicon glyphicon-remove"></span></button></td></tr>');
+				return false;
+			}
+		});
+
+	}
+}
+function addToOrder(event, item)
+{
+	var createNew = true;
+	$.each(orderItems, function(idx, val) {
+		if (val.OrderItem.id == item.id) {
+			createNew = false;
+			val.count = val.count+1;
+			addOrUpdateRow(item, val.count);
+		}
+	});
+
+	if (createNew == true)
+	{
+		orderItems.push({count : 1, OrderItem : item})
+		addOrUpdateRow(item, 1);
+
+	}
+	$('#addItem').typeahead('val', '');
+
+}
+
+
+function customDatumTokenizer(d)
+{
+	var name = Bloodhound.tokenizers.whitespace(d.plainName); 
+	var sku = Bloodhound.tokenizers.whitespace(d.id);
+	var cat = Bloodhound.tokenizers.whitespace(d.category);
+	return name.concat(sku).concat(cat);
+}
+function onItemsUpdate(data)
+{
+	items = data.items;
+	$('#addItem').attr("placeholder", "Type Item Name");
+
+}
+
+function formatCurrency(value)
+{
+	var dollar_value = (value/100).toFixed(2);
+	return '$' +dollar_value.toString();
+}
+
+</script>
+{% endraw %}
+{% endblock %}

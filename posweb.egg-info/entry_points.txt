@@ -1,0 +1,5 @@
+      [paste.app_factory]
+      main = posweb:main
+      [console_scripts]
+      initialize_posweb_db = posweb.scripts.initializedb:main
+      
