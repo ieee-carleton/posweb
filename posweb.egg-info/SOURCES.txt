@@ -2,10 +2,8 @@ CHANGES.txt
 MANIFEST.in
 README.txt
 development.ini
-production.ini
 setup.py
 posweb/__init__.py
-posweb/handlebar-template.js
 posweb/models.py
 posweb/resources.py
 posweb/security.py
@@ -38,6 +36,7 @@ posweb/templates/Item.jinja2
 posweb/templates/ItemsList.jinja2
 posweb/templates/Order.jinja2
 posweb/templates/OrdersList.jinja2
+posweb/templates/ProcOrder.jinja2
 posweb/templates/User.jinja2
 posweb/templates/base.jinja2
 posweb/templates/home.jinja2
@@ -45,6 +44,7 @@ posweb/templates/login.jinja2
 posweb/templates/mytemplate.pt
 posweb/templates/new_order.jinja2
 posweb/templates/new_proc_order.jinja2
+posweb/templates/include/ItemListView.jinja2
 posweb/views/Account.py
 posweb/views/Home.py
 posweb/views/Login.py
