@@ -3,9 +3,10 @@
     <tr>
     <th class="col-md-2">Internal ID</th>
     <th class="col-md-3">Category</th>
-    <th class="col-md-5">Name</th>
+    <th class="col-md-4">Name</th>
     <th class="col-md-1">Price</th>
     <th class="col-md-1">In Stock</th>
+    <th></th>
     </tr>
 </thead>
 <tbody>
@@ -23,11 +24,12 @@
 {% endfor %}
 {% if can_create == true %}
 <tr class="bg-primary">
-    <td><input class="form-control"/>
-    <td><input class="form-control"/>
-    <td><input class="form-control"/>
-    <td><input class="form-control"/>
-    <td><input class="form-control"/>
+    <td><input class="form-control" id="id"/>
+    <td><input class="form-control" id="category"/>
+    <td><input class="form-control" id="name"/>
+    <td><input class="form-control" id="price"/>
+    <td><input class="form-control" id="stockCount"/>
+    <td><button type="button" class="btn btn-default btn-sm btn-save"><span class="glyphicon glyphicon-floppy-save"></span></button></td>
 </tr>
 {% endif %}
 
