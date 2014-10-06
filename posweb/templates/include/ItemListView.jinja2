@@ -1,11 +1,14 @@
-<table class="table table-striped">
+
+{% macro render_items(items , can_create) %}
+<table class="table table-striped" id="itemTable">
 <thead>
     <tr>
     <th class="col-md-2">Internal ID</th>
     <th class="col-md-3">Category</th>
-    <th class="col-md-5">Name</th>
+    <th class="col-md-4">Name</th>
     <th class="col-md-1">Price</th>
     <th class="col-md-1">In Stock</th>
+	<th class="col-md-1"></th>
     </tr>
 </thead>
 <tbody>
@@ -19,17 +22,54 @@
     {% else %}    
     <td>{{ item.stockCount }} </td>
     {% endif %}
-    </tr>
-{% endfor %}
+	<td></td> 
+</tr>
+	{% endfor %}
 {% if can_create == true %}
-<tr class="bg-primary">
-    <td><input class="form-control"/>
-    <td><input class="form-control"/>
-    <td><input class="form-control"/>
-    <td><input class="form-control"/>
-    <td><input class="form-control"/>
+<tr class="bg-primary new_item">
+    <td><input class="form-control" id="id"/></td>
+    <td><input class="form-control" id="category"/></td>
+    <td><input class="form-control" id="name"/></td>
+    <td><input class="form-control" id="price" pattern="(\d{1,})([\.])(\d{2})"/></td>
+    <td></td>
+	<td><button type="button" class="btn btn-default btn-sm btn-save"><span class="glyphicon glyphicon-floppy-save"></span></button></td>
 </tr>
 {% endif %}
-
 </tbody>
 </table>
+
+{% endmacro %}
+
+{% macro add_items_script(can_create, request) %}
+	{% if can_create == true %}
+		<script type="text/javascript">
+		$(document).ready(function()
+		{
+		$('#itemTable').on( 'click', '.btn-save', function( event ) {
+					var $tr = $(this).closest('tr');
+					var id = parseInt($tr.find('#id').val());
+					var cat = $tr.find('#category').val();
+					var nm = $tr.find('#name').val();
+					var price =$tr.find('#price').val();
+					$.ajax(
+					{
+						type: 'POST',
+						url: '{{request.application_url}}/api/items/new',
+						data: JSON.stringify({'id' : id, 'category': cat, 'name': nm, 'price' : price}),
+						contentType: 'application/json; charset=utf-8'
+					}).done(function(response)
+					{
+						if (response.status == 0)
+						{
+							alert("successfully added!");
+						}
+						}
+						);
+
+				});
+
+		}
+		);		
+		</script>
+	{% endif %}
+{% endmacro %}

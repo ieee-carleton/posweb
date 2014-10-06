@@ -275,7 +275,7 @@ function addToOrder(event, item)
 	$.each(orderItems, function(idx, val) {
 		if (val.OrderItem.id == item.id) {
 			createNew = false;
-			val.count = val.count+1;
+			val.count = parseInt(val.count)+1;
 			addOrUpdateRow(item, val.count);
 		}
 	});

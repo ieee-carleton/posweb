@@ -1,9 +1,16 @@
 {%extends "base.jinja2" %}
+{% from "include/ItemListView.jinja2" import render_items, add_items_script %}
 
 {%block title %}All Products{% endblock %}
 {%block content %}
 <h1>Current Stock Levels</h1>
 <div class="row col-md-11 center-block">
-{% include "include/ItemListView.jinja2" %}
+
+{{render_items(items, can_create)}}
+
 </div>
+{% endblock %}
+
+{% block script %}
+{{ add_items_script(can_create, request) }}
 {% endblock %}
