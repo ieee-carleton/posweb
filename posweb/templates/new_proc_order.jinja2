@@ -91,7 +91,7 @@
 {% endblock %}
 
 {%block script %}
-{% raw %}
+
 <script src="http://cdnjs.cloudflare.com/ajax/libs/typeahead.js/0.10.4/dist/typeahead.bundle.min.js"></script>
 <script src="http://cdnjs.cloudflare.com/ajax/libs/handlebars.js/2.0.0-alpha.4/handlebars.min.js"></script>
 		<script type="text/javascript">
@@ -105,7 +105,7 @@
 					datumTokenizer: customDatumTokenizer,
 					queryTokenizer: Bloodhound.tokenizers.whitespace,
 					prefetch: {
-						url: "/api/items",
+						url: "{{request.application_url}}/api/items",
 						filter: function(ilist){return ilist.items;}
 					}
 				}
@@ -123,8 +123,10 @@
 						'unable to find any products that match the current query',
 						'</div>'
 						].join('\n'),
+{% raw %}
 						suggestion: Handlebars.compile(
-							'<p><span class="hint">(Category: {{category}}</span>: <strong>{{plainName}}</strong> – {{formatCurrency value}}</p>')
+							'<p><span class="hint">(Category: {{category}}</span>): <strong>{{plainName}}</strong> – {{formatCurrency value}}</p>')
+{% endraw %}
 					}
 				}).on('typeahead:selected', addToOrder).on('typeahead.autocompleted', addToOrder);
 				$('#addItem').typeahead('val', '');
@@ -181,7 +183,7 @@
 					$.ajax(
 					{
 						type: 'POST',
-						url: '/api/procurements/new',
+						url: '{{request.application_url}}/api/procurements/new',
 						data: JSON.stringify(prepareOrder()),
 						contentType: 'application/json; charset=utf-8'
 					}).done(function(response)
@@ -285,5 +287,5 @@ function formatCurrency(value)
 }
 
 </script>
-{% endraw %}
+
 {% endblock %}
