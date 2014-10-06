@@ -41,19 +41,22 @@ def GetSaleItems(request):
 
 @view_config(context='posweb.resources.NewItem', renderer='json', request_method='POST', custom_predicates=(RequestIsAPI,), permission='create_item')
 def PostNewItem(request):
-    print "serving request context", request.context.__name__
+    print("serving request context", request.context.__name__)
+    print("request type=POST, item=NewItem")
     try:
-        item_name = request.json_body['plainName']
+        print request.json_body
+        item_name = request.json_body['name']
         item_id = int(request.json_body['id'])
-        d = Decimal(request.json_body['value']) * 100;
+        print request.json_body
+        d = Decimal(request.json_body['price']) * 100;
         item_value = int(d)
         item_category = request.json_body['category']
-        item = SaleItem(item_category, item_name, item_value, 0)
-        item.id = item_id
+        item = SaleItem(item_id, item_category, item_name, item_value, 0)
         DBSession.add(item)
 
         return {'status': 0}
-    except:
+    except Exception as e:
+        print(e)
         return {'status': 1}
 
 

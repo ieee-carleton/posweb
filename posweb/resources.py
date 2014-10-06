@@ -100,8 +100,10 @@ class ItemCollection(object):
 		self.__parent__ = parent
 
 	def __getitem__(self, key):
-		if (key):
+		if (key != "new"):
 			return SingleItem(key, self.__parent__)
+		elif (key =="new"):
+			return NewItem(key, self.__parent__)
 
 class NewItem(object):
 	def __init__(self, name, parent=Root):
