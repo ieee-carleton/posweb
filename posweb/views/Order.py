@@ -1,6 +1,6 @@
 from pyramid.response import Response
 from pyramid.view import view_config
-
+import transaction
 from sqlalchemy.exc import DBAPIError
 from time import strftime
 
@@ -49,41 +49,45 @@ def PostOrder(request):
     print "serving request context: ", request.context.__name__
     if (request.json_body is None):
         return NotFound()
+    try:    
+        # we're doing the total ourselves, don't trust the client
+        currentTotal = 0
+        ProcessErrorCode = 0
+        redirect = ""
+        currentTimeStamp = strftime("%Y-%m-%d %H:%M:%S")
+        temp_order = Order(getUser(request.authenticated_userid), currentTimeStamp, 0)
+        for item in request.json_body['items']:
+            saleitem = DBSession.query(SaleItem).filter_by(id = item['id']).first().autoflush(False)     
+            if (saleitem is None):
+                ProcessErrorCode = 5
+                break
 
-    # we're doing the toal ourselves, don't trust the client
-    currentTotal = 0
-    ProcessErrorCode = 0
+            else:
+                item_count = int(item['count'])
+                temp_order.orderLineItems.append(OrderLineItem(saleitem, item_count ))
+                currentTotal += int(item['count']) * saleitem.value
 
-    currentTimeStamp = strftime("%Y-%m-%d %H:%M:%S")
-    temp_order = Order(getUser(request.authenticated_userid), currentTimeStamp, 0)
+                if (saleitem.stockCount != -1):
+                    if ((saleitem.stockCount - item_count) < 0):
+                        ProcessErrorCode = 4
+                        raise Exception("Item out of stock!")
 
-    for item in request.json_body['items']:
-        saleitem = DBSession.query(SaleItem).filter_by(id = item['id']).first()
-        if (saleitem is None):
-            ProcessErrorCode = 5
-            break
-        else:
-            item_count = int(item['count'])
-            temp_order.orderLineItems.append(OrderLineItem(saleitem, item_count ))
-            currentTotal += int(item['count']) * saleitem.value
+                    else:
+                        saleitem.stockCount = saleitem.stockCount - item_count
 
-            if (saleitem.stockCount != -1):
-                if (saleitem.stockCount - item_count < 0):
-                    ProcessErrorCode = 1
-                    break
-
-                saleitem.stockCount = saleitem.stockCount - item_count
-        
-    if (ProcessErrorCode  == 0):
-        
         temp_order.orderTotal = currentTotal
-        DBSession.add(temp_order)
-        committedOrder = DBSession.query(Order).filter_by(commitDate=currentTimeStamp).one()
-        print "committed transaction #", committedOrder.id
-        return {'status': ProcessErrorCode, 'redirect': request.application_url + '/app/orders/' + str(committedOrder.id)}
-    
-
-    else:
+        
+        if (ProcessErrorCode == 0):
+            print "adding to session"           
+            DBSession.add(temp_order)
+            committedOrder = DBSession.query(Order).filter_by(commitDate=currentTimeStamp).one()
+            print "committed transaction #", committedOrder.id
+            redirect = request.application_url + '/app/orders/' + str(committedOrder.id)
+    except Exception as e:
+        print e
+        transaction.rollback()
+        DBSession.expunge()
+    finally:
         print "Process error code: ", ProcessErrorCode
-        return {'status': ProcessErrorCode}
+        return {'status': ProcessErrorCode, 'redirect': redirect}
 
