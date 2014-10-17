@@ -5,23 +5,14 @@ from sqlalchemy.exc import DBAPIError
 from time import strftime
 
 from posweb.security import getUser
-
+from .shared import RequestIsPage,RequestIsAPI
 from posweb.models.shared import DBSession
 from posweb.models.SaleItem import SaleItem, SaleItemCache
 
 from posweb.models.OrderItem import Order, OrderLineItem
 from pyramid.exceptions import NotFound 
 from posweb.resources import (ApiRouter, Root)
-def RequestIsAPI(context, request):
-    if (context.__parent__ == ApiRouter):
-        return True
 
-    return False
-def RequestIsPage(context, request):
-    print context.__parent__
-    if (context.__parent__ == Root):
-        return True
-    return False
 
 @view_config(context='posweb.resources.SingleOrder', renderer='../templates/Order.jinja2', request_method='GET', custom_predicates=(RequestIsPage,), permission='new_order')
 def GetOrder(request):

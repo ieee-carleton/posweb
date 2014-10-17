@@ -10,7 +10,7 @@ class Root(object):
 	__parent__ = None
 	__acl__ = [ (Allow, Everyone, 'view_orders'),
 				(Allow, Everyone, 'get_saleItems'),
-				(Allow, 'execs', ('make_accounts, open_accounts', 'new_procurement', "create_item")),
+				(Allow, 'execs', ('new__order', 'get_accounts' 'make_accounts, open_accounts', 'new_procurement', "create_item")),
                 (Allow, 'volunteers', ('new_order', 'get_accounts')),
                 (Allow, 'admins', ALL_PERMISSIONS) ]
 

@@ -13,17 +13,8 @@ from posweb.models.SaleItem import SaleItem, SaleItemCache
 from posweb.models.OrderItem import Order, OrderLineItem
 from posweb.models.ProcurementOrder import ProcurementOrder, ProcurementOrderItem
 from pyramid.exceptions import NotFound 
-from posweb.resources import (ApiRouter, Root)
-def RequestIsAPI(context, request):
-    if (context.__parent__ == ApiRouter):
-        return True
 
-    return False
-def RequestIsPage(context, request):
-    print context.__parent__
-    if (context.__parent__ == Root):
-        return True
-    return False
+from .shared import RequestIsPage,RequestIsAPI
 
 @view_config(context='posweb.resources.SingleProcOrder', renderer='../templates/ProcOrder.jinja2', request_method='GET', custom_predicates=(RequestIsPage,), permission='view_proc_order')
 def GetProcOrder(request):
@@ -66,7 +57,7 @@ def PostProcOrder(request):
     temp_order = ProcurementOrder(orderUser, order_total)
 
     for item in request.json_body['items']:
-        saleitem = DBSession.query(SaleItem).filter_by(id = item['id']).first()
+        saleitem = DBSession.query(SaleItem).filter_by(id = item['id']).first().autoflush(False)
         if (saleitem is None):
             ProcessErrorCode = 5
             break
