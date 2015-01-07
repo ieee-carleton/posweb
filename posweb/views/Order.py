@@ -60,27 +60,26 @@ def PostOrder(request):
     for item in request.json_body['items']:
         saleitem = DBSession.query(SaleItem).filter_by(id = item['id']).first()
         if (saleitem is None):
-            ProcessErrorCode = 5
+            ProcessErrorCode = -1
             break
         else:
             item_count = int(item['count'])
             temp_order.orderLineItems.append(OrderLineItem(saleitem, item_count ))
             currentTotal += int(item['count']) * saleitem.value
 
-            if (saleitem.stockCount != -1):
+            if (saleitem.nonStockableItem != 1):
                 if (saleitem.stockCount - item_count < 0):
                     ProcessErrorCode = 1
-                    break
-
                 saleitem.stockCount = saleitem.stockCount - item_count
         
-    if (ProcessErrorCode  == 0):
+    if (ProcessErrorCode  >= 0):
         
         temp_order.orderTotal = currentTotal
         DBSession.add(temp_order)
-        committedOrder = DBSession.query(Order).filter_by(commitDate=currentTimeStamp).one()
-        print "committed transaction #", committedOrder.id
-        return {'status': ProcessErrorCode, 'redirect': request.application_url + '/app/orders/' + str(committedOrder.id)}
+        DBSession.commit()
+        DBSession.flush()
+        print "committed transaction #", temp_order.id
+        return {'status': ProcessErrorCode, 'redirect': request.application_url + '/app/orders/' + str(temp_order.id)}
     
 
     else:

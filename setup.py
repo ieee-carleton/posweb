@@ -43,5 +43,6 @@ setup(name='posweb',
       main = posweb:main
       [console_scripts]
       initialize_posweb_db = posweb.scripts.initializedb:main
+      migrate_db = posweb.scripts.migratedb:main
       """,
       )

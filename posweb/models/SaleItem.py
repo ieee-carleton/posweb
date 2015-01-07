@@ -21,6 +21,9 @@ class SaleItem(Base):
     plainName = Column(Text)
     value = Column(Integer)
     stockCount = Column(Integer)
+    nonStockableItem = Column(Integer)
+    variantOf = Column(Integer, ForeignKey('saleItems.id'))
+    Parent = relation('SaleItem', remote_side=[id])
 
     def __init__(self, category, name, val, stockCount):
     	self.category = category

@@ -25,6 +25,7 @@ posweb/models/models.py
 posweb/models/shared.py
 posweb/scripts/__init__.py
 posweb/scripts/initializedb.py
+posweb/scripts/migratedb.py
 posweb/static/base.css
 posweb/static/handlebar-template.js
 posweb/static/pyramid-16x16.png
