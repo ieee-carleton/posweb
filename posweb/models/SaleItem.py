@@ -3,9 +3,12 @@ from sqlalchemy import (
     Index,
     Integer,
     Text,
+    ForeignKey
     )
 
 from shared import DBSession, Base
+from sqlalchemy.orm import relationship, backref,relation
+
 class SaleItemCache(object):
     def __init__(self):
         self.dCache = {}

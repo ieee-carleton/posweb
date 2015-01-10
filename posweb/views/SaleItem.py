@@ -72,3 +72,4 @@ def GetSaleItem(request):
         return Response(conn_err_msg, content_type='text/plain', status_int=500)
     return {'item' : item}
 
+conn_err_msg = "Error connecting to database."
