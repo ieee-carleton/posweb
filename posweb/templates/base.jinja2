@@ -25,7 +25,12 @@
                         <span class="glyphicon glyphicon-user"></span> <strong>{{ logged_in }}</strong> <span class="caret"></span>
                     </button>
                     <ul class="dropdown-menu" role="menu">
-                        <li><a href="{{request.application_url}}/app/orders/new">New sale</a></li>
+                        <li><a href="{{request.application_url}}/app/orders/new">Make a Sale</a></li>
+                        <li><a href="{{request.application_url}}/app/items/">Inventory Levels</a></li>
+                        <li class="divider"></li>
+                        {%if utils.has_permission('inventory')%}
+                        <li><a href="{{request.application_url}}/app/procurements/new">Add New Purchases</a></li>
+                        {% endif %}
                         <li class="divider"></li>
                         <li><a href="{{request.application_url}}/app/users/{{ logged_in }}">Account</a></li>
                         <li><a href="{{request.application_url}}/logout">Logout</a></li>

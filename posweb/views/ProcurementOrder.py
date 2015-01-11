@@ -25,7 +25,7 @@ def RequestIsPage(context, request):
         return True
     return False
 
-@view_config(context='posweb.resources.SingleProcOrder', renderer='../templates/ProcOrder.jinja2', request_method='GET', custom_predicates=(RequestIsPage,), permission='view_proc_order')
+@view_config(context='posweb.resources.SingleProcOrder', renderer='../templates/ProcOrder.jinja2', request_method='GET', custom_predicates=(RequestIsPage,), permission='inventory')
 def GetProcOrder(request):
     print "serving request context:", request.context.__name__
     order = DBSession.query(ProcurementOrder).filter_by(id = request.context.__name__).first()
@@ -36,7 +36,7 @@ def GetProcOrder(request):
 
 
 
-@view_config(context='posweb.resources.NewProcOrder', renderer='../templates/new_proc_order.jinja2', request_method='GET', custom_predicates=(RequestIsPage,), permission='new_proc_order')
+@view_config(context='posweb.resources.NewProcOrder', renderer='../templates/new_proc_order.jinja2', request_method='GET', custom_predicates=(RequestIsPage,), permission='inventory')
 def NewProcOrder(request):
     print "serving request context:", request.context.__name__
     if (request.context.__name__ == 'new'):
@@ -46,7 +46,7 @@ def NewProcOrder(request):
 
 
 
-@view_config(context='posweb.resources.NewProcOrder', renderer='json', request_method='POST', custom_predicates=(RequestIsAPI,), permission='new_proc_order')
+@view_config(context='posweb.resources.NewProcOrder', renderer='json', request_method='POST', custom_predicates=(RequestIsAPI,), permission='inventory')
 def PostProcOrder(request):
     print "serving request context: ", request.context.__name__
     print "request", request

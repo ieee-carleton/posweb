@@ -6,7 +6,10 @@
 <div class="col-md-6 col-md-offset-3">
 <h4>IEEE Carleton University Point of Sale System - BETA</h4>
         <div class="btn-group center-block" style="padding-bottom:300px">
-            <a class="btn btn-primary center-block" href="{{request.application_url}}/login">Login</a>
+            <a class="btn btn-primary center-block" href="{{request.application_url}}/app/orders/new">Make a Sale</a>
+            {% if utils.has_permission('inventory') %}
+            <a class="btn btn-primary center-block top-padding" href="{{request.application_url}}/app/procurements/new">Add Purchase Order</a>
+            {% endif %}
         </div>
 </div>
 </div>
