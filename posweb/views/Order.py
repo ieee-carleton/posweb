@@ -81,7 +81,7 @@ def PostOrder(request):
 
         zippedItems = zip(orderSaleItems, orderItems)        
         print zippedItems
-        #import pdb;  pdb.set_trace()
+        import pdb;  pdb.set_trace()
         for item in zippedItems:
             saleitem = item[0]
             temp_order.orderLineItems.append(OrderLineItem(saleitem,int(item[1]['count'])))
@@ -99,7 +99,7 @@ def PostOrder(request):
         print "committed transaction #", temp_order.id
         redirect = request.application_url + '/app/orders/' + str(temp_order.id)
         if (ProcessErrorCode  == 1):
-            message ="Items (" + ','.join(outOfStockItems) + ") were marked as out of stock. Please contact the restocking director"
+            message ="Items (" + ','.join([str(n) for n in outOfStockItems]) + ") were marked as out of stock. Please contact the restocking director"
     except InvalidItemError as e:
         print "Process error: Invalid Item"
         ProcessErrorCode = -1
