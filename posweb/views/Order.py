@@ -67,9 +67,11 @@ def PostOrder(request):
         orderItems = [item['id'] for item in request.json_body['items']]
         orderSaleItems = list(DBSession.query(SaleItem).filter(SaleItem.id.in_(orderItems)).all())
         if len(orderSaleItems) != len(orderItems):
+            ProcessErrorCode = -3
             raise ItemLookupError("Something in the lookup process went wrong!")
 
         if None in orderSaleItems:
+            ProcessErrorCode = -4
             raise InvalidItemError("One or more items not found in database!")
 
         orderItems =[item for item in request.json_body['items']]
@@ -90,9 +92,7 @@ def PostOrder(request):
                     ProcessErrorCode = 1
                     outOfStockItems.append(saleitem.id)
                 saleitem.stockCount = saleitem.stockCount - item[1]['count']
-            
         
-            
         temp_order.orderTotal = currentTotal
         DBSession.add(temp_order)
         DBSession.flush()
