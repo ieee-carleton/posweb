@@ -2,6 +2,10 @@ from posweb.models.shared import DBSession
 from posweb.models.User import User
 from pyramid.security import unauthenticated_userid
 
+from pyramid.events import subscriber
+from pyramid.events import BeforeRender
+from pyramid.security import has_permission
+
 from sqlalchemy.exc import DBAPIError
 import bcrypt
 def getGroups(userid, request):
@@ -38,3 +42,16 @@ def getUser(userid):
 def getUserFromRequest(request):
     userid = unauthenticated_userid(request)
     return getUser(userid)
+
+
+@subscriber(BeforeRender)
+def add_global(event):
+    event['utils'] = JinjaExtensionUtils(event['request'])
+
+
+class JinjaExtensionUtils(object):
+    def __init__(self, request):
+        self.request = request
+
+    def has_permission(self, permission):
+        return has_permission(permission, self.request.context, self.request)
