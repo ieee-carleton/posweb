@@ -81,17 +81,17 @@ def PostOrder(request):
 
         zippedItems = zip(orderSaleItems, orderItems)        
         print zippedItems
-
+        import pdb;  pdb.set_trace()
         for item in zippedItems:
             saleitem = item[0]
-            temp_order.orderLineItems.append(OrderLineItem(item[0],item[1]['count']))
-            currentTotal += item[1]['count'] * item[0].value
+            temp_order.orderLineItems.append(OrderLineItem(saleitem,int(item[1]['count'])))
+            currentTotal += int(item[1]['count']) *saleitem.value
 
             if (saleitem.nonStockableItem != 1):
-                if (saleitem.stockCount < item[1]['count']):
+                if (saleitem.stockCount < int(item[1]['count'])):
                     ProcessErrorCode = 1
                     outOfStockItems.append(saleitem.id)
-                saleitem.stockCount = saleitem.stockCount - item[1]['count']
+                saleitem.stockCount = saleitem.stockCount - int(item[1]['count'])
         
         temp_order.orderTotal = currentTotal
         DBSession.add(temp_order)
@@ -105,7 +105,14 @@ def PostOrder(request):
         ProcessErrorCode = -1
         redirect = ''
         message = e.message
-
+    except ItemLookupError as e:
+        print "Item Lookup Error"
+        message = e.message
+    except Exception as e:
+        print "Invalid Operation"
+        ProcessErrorCode = -6
+        redirect = ''
+        message = e.message
     finally:
         return {'status': ProcessErrorCode, 'redirect': redirect, 'message': message}
 
