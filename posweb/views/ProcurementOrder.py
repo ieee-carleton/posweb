@@ -73,9 +73,9 @@ def PostProcOrder(request):
         else:
             item_count = int(item['count'])
             temp_order.LineItems.append(ProcurementOrderItem(saleitem, item_count))
-            if (saleitem.stockCount != -1):
+            if (saleitem.nonStockableItem != 1):
                 saleitem.stockCount = saleitem.stockCount + item_count; 
-        DBSession.add(saleitem)
+                DBSession.add(saleitem)
         
 
     if (ProcessErrorCode  == 0):
