@@ -81,7 +81,7 @@ def PostOrder(request):
 
         zippedItems = zip(orderSaleItems, orderItems)        
         print zippedItems
-        import pdb;  pdb.set_trace()
+        #import pdb;  pdb.set_trace()
         for item in zippedItems:
             saleitem = item[0]
             temp_order.orderLineItems.append(OrderLineItem(saleitem,int(item[1]['count'])))
