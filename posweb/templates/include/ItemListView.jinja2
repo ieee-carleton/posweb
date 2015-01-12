@@ -18,7 +18,8 @@
     <td>{{ item.category }} </td>
     <td>{{ item.plainName }}</td>
     <td>${{ '{0:0.2f}'.format(item.value / 100)}}</td>
-    {% if item.stockCount == -1%}
+    {% if item.nonStockableItem == 1 %}
+    <td>N/A</td>
     {% else %}    
     <td>{{ item.stockCount }} </td>
     {% endif %}

@@ -3,6 +3,8 @@ from pyramid.security import (
     Everyone,
     ALL_PERMISSIONS
     )
+
+
 from .security import getUser
 from posweb.models.User import User
 class Root(object):
@@ -10,7 +12,7 @@ class Root(object):
 	__parent__ = None
 	__acl__ = [ (Allow, Everyone, 'view_orders'),
 				(Allow, Everyone, 'get_saleItems'),
-				(Allow, 'execs', ('make_accounts, open_accounts', 'new_procurement', "create_item")),
+				(Allow, 'execs', ('new_order', 'open_accounts', 'inventory', 'create_item', 'get_accounts', 'sales_summary')),
                 (Allow, 'volunteers', ('new_order', 'get_accounts')),
                 (Allow, 'admins', ALL_PERMISSIONS) ]
 

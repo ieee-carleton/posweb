@@ -3,9 +3,12 @@ from sqlalchemy import (
     Index,
     Integer,
     Text,
+    ForeignKey
     )
 
 from shared import DBSession, Base
+from sqlalchemy.orm import relationship, backref,relation
+
 class SaleItemCache(object):
     def __init__(self):
         self.dCache = {}
@@ -21,6 +24,9 @@ class SaleItem(Base):
     plainName = Column(Text)
     value = Column(Integer)
     stockCount = Column(Integer)
+    nonStockableItem = Column(Integer)
+    variantOf = Column(Integer, ForeignKey('saleItems.id'))
+    Parent = relation('SaleItem', remote_side=[id])
 
     def __init__(self, category, name, val, stockCount):
     	self.category = category

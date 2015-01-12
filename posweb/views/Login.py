@@ -10,42 +10,46 @@ from pyramid.security import (
     forget,
     )
 from pyramid.httpexceptions import HTTPFound
+from pyramid.httpexceptions import HTTPForbidden
+from pyramid.security import authenticated_userid
+
+@forbidden_view_config()
+def forbidden_view(request):
+# do not allow a user to login if they are already logged in
+    if authenticated_userid(request):
+        return HTTPForbidden()
+    loc = request.route_url('login', _query=(('next', request.path),))
+    return HTTPFound(location=loc)
 
 
 @view_config(route_name='login', renderer='../templates/login.jinja2')
-@forbidden_view_config(renderer='../templates/login.jinja2')
 def login(request):
     login_url = request.route_url('login')
-    referrer = request.url
-    if referrer == login_url:
-        referrer = '/' # never use the login form itself as came_from
-    came_from = request.params.get('came_from', referrer)
+    next = request.params.get('next') or request.route_url('home')
     message = ''
     login = ''
     password = ''
-    print "came from:", came_from
+    print "Tried to access:", next
     if 'form.submitted' in request.params:
-        print "Logged in!"
+        print "Login request submitted"
         login = request.params['login']
         password = request.params['password']
         if (authenticateUser(login, password)):
             headers = remember(request, login)
-            if (came_from == '/'):
-                came_from = request.application_url + '/app/orders/new'
-            return HTTPFound(location = came_from,
+            print "Successfully authenticated %s" % login 
+            return HTTPFound(location = next,
                              headers = headers)
         message = 'Failed login'
 
-    return dict(
-        message = message,
-        url = request.application_url + '/login',
-        came_from = came_from,
-        login = login,
-        password = password,
-        )
+    return {
+        'message' : message,
+        'next' : next,
+        'login' : login,
+        'password' : password,
+        }
 
 @view_config(route_name='logout')
 def logout(request):
     headers = forget(request)
-    return HTTPFound(location = request.route_url('login'),
+    return HTTPFound(location = request.route_url('home'),
                      headers = headers)

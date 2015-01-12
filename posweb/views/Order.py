@@ -11,7 +11,11 @@ from posweb.models.SaleItem import SaleItem, SaleItemCache
 
 from posweb.models.OrderItem import Order, OrderLineItem
 from pyramid.exceptions import NotFound 
+
+from posweb.exceptions import InvalidItemError, ItemLookupError
+
 from posweb.resources import (ApiRouter, Root)
+
 def RequestIsAPI(context, request):
     if (context.__parent__ == ApiRouter):
         return True
@@ -75,19 +79,58 @@ def PostOrder(request):
                     else:
                         saleitem.stockCount = saleitem.stockCount - item_count
 
-        temp_order.orderTotal = currentTotal
+    # we're doing the total ourselves, don't trust the client
+    currentTotal = 0
+    ProcessErrorCode = 0
+    outOfStockItems = []
+    message  = ""
+    redirect = ""
+    currentTimeStamp = strftime("%Y-%m-%d %H:%M:%S")
+
+    try:
+        temp_order = Order(getUser(request.authenticated_userid), currentTimeStamp, 0)
+        orderItems = [item['id'] for item in request.json_body['items']]
+        orderSaleItems = list(DBSession.query(SaleItem).filter(SaleItem.id.in_(orderItems)).all())
+        if len(orderSaleItems) != len(orderItems):
+            raise ItemLookupError("Something in the lookup process went wrong!")
+
+        if None in orderSaleItems:
+            raise InvalidItemError("One or more items not found in database!")
+
+        orderItems =[item for item in request.json_body['items']]
+        orderItems.sort(key=lambda x: x['id'])
+
+        orderSaleItems.sort(key=lambda item: item.id)
+
+        zippedItems = zip(orderSaleItems, orderItems)        
+        print zippedItems
+
+        for item in zippedItems:
+            saleitem = item[0]
+            temp_order.orderLineItems.append(OrderLineItem(item[0],item[1]['count']))
+            currentTotal += item[1]['count'] * item[0].value
+
+            if (saleitem.nonStockableItem != 1):
+                if (saleitem.stockCount < item[1]['count']):
+                    ProcessErrorCode = 1
+                    outOfStockItems.append(saleitem.id)
+                saleitem.stockCount = saleitem.stockCount - item[1]['count']
+            
         
-        if (ProcessErrorCode == 0):
-            print "adding to session"           
-            DBSession.add(temp_order)
-            committedOrder = DBSession.query(Order).filter_by(commitDate=currentTimeStamp).one()
-            print "committed transaction #", committedOrder.id
-            redirect = request.application_url + '/app/orders/' + str(committedOrder.id)
-    except Exception as e:
-        print e
-        transaction.rollback()
-        DBSession.expunge()
+            
+        temp_order.orderTotal = currentTotal
+        DBSession.add(temp_order)
+        DBSession.flush()
+        print "committed transaction #", temp_order.id
+        redirect = request.application_url + '/app/orders/' + str(temp_order.id)
+        if (ProcessErrorCode  == 1):
+            message ="Items (" + ','.join(outOfStockItems) + ") were marked as out of stock. Please contact the restocking director"
+    except InvalidItemError as e:
+        print "Process error: Invalid Item"
+        ProcessErrorCode = -1
+        redirect = ''
+        message = e.message
+
     finally:
-        print "Process error code: ", ProcessErrorCode
-        return {'status': ProcessErrorCode, 'redirect': redirect}
+        return {'status': ProcessErrorCode, 'redirect': redirect, 'message': message}
 
