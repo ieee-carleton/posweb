@@ -34,6 +34,21 @@ class Order(Base):
 
 
 
+class DiscountCode(Base):
+	__tablename__ = "discountCodes"
+	id=Column(Integer, primary_key=True)
+	isActive=Column(Integer)
+	appliesTo=Column(Text)
+	text=Column(Text)
+	discountAmount=Column(Integer)
+	
+	def __init(self, isActive=true,appliesTo,text,amount):
+		self.isActive = int(isActive)
+		self.appliesTo = appliesTo
+		self.text = text
+		self.amount = amount
+
+
 class OrderLineItem(Base):
     __tablename__ = "orderLineItem"
     id = Column(Integer, primary_key=True)

@@ -4,9 +4,16 @@ class Error(Exception):
     pass
 
 class InvalidItemError(Error):
-    def __init__(self, message):
-        self.message = message
-
+    def __init__(self):
+        self.message = "Invalid item specified"
+		self.id = -2
+		
 class ItemLookupError(Error):
-    def __init__(self, item_id):
-        self.message = message
+    def __init__(self):
+        self.message = "Error looking up an item"
+		self.id = -3
+		
+class DiscountCodeError(Error):
+    def __init__(self, code):
+        self.message = "Invalid discount code" % code
+		self.id = -4
