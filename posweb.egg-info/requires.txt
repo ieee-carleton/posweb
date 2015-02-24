@@ -6,3 +6,5 @@ SQLAlchemy
 transaction
 zope.sqlalchemy
 waitress
+bcrypt
+pyramid_jinja2

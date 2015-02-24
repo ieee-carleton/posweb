@@ -4,6 +4,7 @@ README.txt
 development.ini
 setup.py
 posweb/__init__.py
+posweb/exceptions.py
 posweb/models.py
 posweb/resources.py
 posweb/security.py

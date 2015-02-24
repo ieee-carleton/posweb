@@ -17,10 +17,12 @@ requires = [
     'transaction',
     'zope.sqlalchemy',
     'waitress',
+    'bcrypt',
+    'pyramid_jinja2'
     ]
 
 setup(name='posweb',
-      version='0.0',
+      version='0.5',
       description='posweb',
       long_description=README + '\n\n' + CHANGES,
       classifiers=[
